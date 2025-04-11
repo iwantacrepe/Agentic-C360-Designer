@@ -84,9 +84,9 @@ The system follows a sequential multi-agent workflow orchestrated within the Gra
 1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/iwantacrepe/Agentic-C360-Designer.git
-    cd YOUR_REPO_NAME
+    cd Agentic-C360-Designer
     ```
-    *(Replace `YOUR_USERNAME` and `YOUR_REPO_NAME`)*
+  
 
 2.  **Create `requirements.txt`:**
     Create a file named `requirements.txt` in the root directory with the following content:
