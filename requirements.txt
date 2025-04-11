@@ -1,0 +1,5 @@
+gradio
+pandas
+google-generativeai
+fuzzywuzzy
+python-Levenshtein
