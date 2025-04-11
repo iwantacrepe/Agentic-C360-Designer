@@ -83,7 +83,7 @@ The system follows a sequential multi-agent workflow orchestrated within the Gra
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+    git clone https://github.com/iwantacrepe/Agentic-C360-Designer.git
     cd YOUR_REPO_NAME
     ```
     *(Replace `YOUR_USERNAME` and `YOUR_REPO_NAME`)*
@@ -115,9 +115,9 @@ The system follows a sequential multi-agent workflow orchestrated within the Gra
 
 5.  **Run the Application:**
     ```bash
-    python your_script_name.py
+    python app.py
     ```
-    *(Replace `your_script_name.py` with the actual name of your Python file)*
+   
 
 6.  **Access:** Open your web browser and go to the local URL provided by Gradio (usually `http://127.0.0.1:7860`).
 
