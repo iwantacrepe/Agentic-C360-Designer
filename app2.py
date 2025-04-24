@@ -171,11 +171,11 @@ def parse_json_from_llm(text, agent_name):
              raise json.JSONDecodeError("Empty string cannot be parsed as JSON", "", 0)
         return json.loads(cleaned_text)
     except json.JSONDecodeError as e:
-        error_msg = f"⚠️ Failed to parse JSON response from {agent_name}. Error: {e}. Raw response:\n'{cleaned_text}'"
+        error_msg = f" Failed to parse JSON response from {agent_name}. Error: {e}. Raw response:\n'{cleaned_text}'"
         print(error_msg)
         return {"error": f"JSON Parse Error from {agent_name}", "details": str(e), "raw_response": cleaned_text}
     except Exception as e:
-        error_msg = f"⚠️ Unexpected error parsing response from {agent_name}. Error: {e}. Raw response:\n'{cleaned_text}'"
+        error_msg = f" Unexpected error parsing response from {agent_name}. Error: {e}. Raw response:\n'{cleaned_text}'"
         print(error_msg)
         return {"error": f"Unexpected Parse Error from {agent_name}", "details": str(e), "raw_response": cleaned_text}
 
@@ -209,14 +209,14 @@ def generate_with_retry(prompt, agent_name, max_retries=2, initial_delay=3):
                  block_reason = response.prompt_feedback.block_reason
                  safety_ratings = response.prompt_feedback.safety_ratings
                  error_detail = f"LLM prompt blocked. Reason: {block_reason}. Ratings: {safety_ratings}"
-                 print(f"⚠️ [LLM Call - {agent_name}] {error_detail}")
+                 print(f" [LLM Call - {agent_name}] {error_detail}")
                  # Do not retry safety blocks immediately, treat as failure for this attempt
                  raise ValueError(error_detail)
 
             # Check for empty text content
             if not hasattr(response, 'text') or not response.text:
                 error_detail = "LLM returned empty response content."
-                print(f"⚠️ [LLM Call - {agent_name}] {error_detail}")
+                print(f" [LLM Call - {agent_name}] {error_detail}")
                 # Retry potentially empty responses
                 raise ValueError(error_detail)
 
@@ -234,7 +234,7 @@ def generate_with_retry(prompt, agent_name, max_retries=2, initial_delay=3):
             retries += 1
             error_type = type(e).__name__
             error_message = str(e)
-            print(f"⚠️ [LLM Call - {agent_name}] Failed. Type: {error_type}. Details: {error_message}.")
+            print(f" [LLM Call - {agent_name}] Failed. Type: {error_type}. Details: {error_message}.")
             if retries >= max_retries:
                  final_error_msg = f"{agent_name} LLM call failed after {max_retries} attempts"
                  print(f" [LLM Call - {agent_name}] Max retries reached. Giving up.")
@@ -273,7 +273,7 @@ def analyze_requirements_agent(use_case_text):
 
     if isinstance(result, dict) and "error" in result:
         error_detail = result.get('details', result['error'])
-        print(f"⚠️ [Agent 1] LLM call failed. Generating plausible placeholder requirements. Error: {error_detail}")
+        print(f" [Agent 1] LLM call failed. Generating plausible placeholder requirements. Error: {error_detail}")
         placeholder = {
             "primary_goal": "Enhance Customer Understanding (Inferred Default)",
             "target_audience": "General Analytics / Marketing (Inferred Default)",
@@ -327,7 +327,7 @@ def design_and_enrich_schema_agent(structured_requirements):
     # --- Placeholder for Initial Design Failure ---
     if isinstance(initial_schema, dict) and "error" in initial_schema:
         error_detail = initial_schema.get('details', initial_schema['error'])
-        print(f"⚠️ [Agent 2] LLM initial design failed. Generating placeholder schema. Error: {error_detail}")
+        print(f" [Agent 2] LLM initial design failed. Generating placeholder schema. Error: {error_detail}")
         placeholder_schema_list = [
             {"attribute_name": "customer_id", "data_type": "STRING", "description": "Customer Identifier (Placeholder)"},
             {"attribute_name": "full_name", "data_type": "STRING", "description": "Customer Full Name (Placeholder)"},
@@ -373,7 +373,7 @@ def design_and_enrich_schema_agent(structured_requirements):
                         pk_found = True; print(f"    🔑 Suggested '{attr['attribute_name']}' as Primary Key.")
                         break
                 if pk_found: break
-        if not pk_found: print("    ⚠️ No obvious Primary Key candidate found or suggested.")
+        if not pk_found: print("     No obvious Primary Key candidate found or suggested.")
 
         # Ensure all entries are dicts and have basic keys
         final_schema = []
@@ -386,7 +386,7 @@ def design_and_enrich_schema_agent(structured_requirements):
                   attr.setdefault("added_by", None)
                   final_schema.append(attr)
              else:
-                  print(f"⚠️ Found non-dict entry in schema list: {attr}. Skipping.")
+                  print(f" Found non-dict entry in schema list: {attr}. Skipping.")
         enriched_schema["schema"] = final_schema
 
         print(" [Agent 2] Schema Design & Enrichment - Complete.")
@@ -415,7 +415,7 @@ def find_potential_sources(target_attributes):
             if isinstance(details, dict) and "columns" in details and isinstance(details["columns"], dict):
                 for col_name, col_desc in details["columns"].items():
                     all_sources[f"{table_name}.{col_name}"] = (col_desc or "", table_name, col_name)
-            else: print(f"⚠️ [Agent 3] Skipping malformed MOCK_CATALOG entry: {table_name}")
+            else: print(f" [Agent 3] Skipping malformed MOCK_CATALOG entry: {table_name}")
         if not all_sources: raise ValueError("Mock catalog processing yielded no usable sources.")
     except Exception as e:
          error_msg = f"[Agent 3] Critical Error processing mock catalog: {e}"
@@ -466,7 +466,7 @@ def find_potential_sources(target_attributes):
                     print(f"    🤖 LLM Inferred Source: {inferred_loc} (Confidence: 10)")
                 else:
                     error_detail = llm_inference_result.get('details', llm_inference_result.get('error', 'Unknown'))
-                    print(f"    ⚠️ LLM inference failed for '{attribute}'. Error: {error_detail}")
+                    print(f"     LLM inference failed for '{attribute}'. Error: {error_detail}")
                     potential_matches[attribute].append(("[INFERENCE_FAILED]", 0, f"LLM Error: {str(error_detail)[:100]}"))
 
         except Exception as e:
@@ -530,7 +530,7 @@ def generate_and_refine_mappings_agent(schema_design, potential_sources):
     # --- Placeholder for Initial Mapping Failure ---
     if isinstance(initial_mappings, dict) and "error" in initial_mappings:
         error_detail = initial_mappings.get('details', initial_mappings['error'])
-        print(f"⚠️ [Agent 4] LLM mapping failed. Generating placeholder mappings. Error: {error_detail}")
+        print(f" [Agent 4] LLM mapping failed. Generating placeholder mappings. Error: {error_detail}")
         placeholder_mappings = []
         schema_list = schema_design.get("schema", [])
         sources_dict = potential_sources.get("potential_sources", {})
@@ -607,7 +607,7 @@ def generate_and_refine_mappings_agent(schema_design, potential_sources):
                             "data_quality_checks": ["Verify mapping"] })
                         num_assumed +=1 # Count these as assumptions
 
-        if missing_targets: print(f"    ⚠️ Added placeholder mappings for {len(missing_targets)} attributes missing from LLM output: {missing_targets}")
+        if missing_targets: print(f"     Added placeholder mappings for {len(missing_targets)} attributes missing from LLM output: {missing_targets}")
         if num_assumed > 0: print(f"    🚩 Note: Approx {num_assumed} mapping(s) involved assumptions or lacked clear sources.")
 
         print(" [Agent 4] Mapping Generation & Refinement - Complete.")
@@ -751,7 +751,7 @@ def run_initial_agentic_workflow(use_case_text, progress=gr.Progress()):
     elif isinstance(schema_result, dict) and schema_result.get("llm_placeholder_generated"): summary_lines.append(f"**Schema:** Using defaults."); num_attrs = len([a for a in schema_result.get("schema", []) if isinstance(a, dict)]); summary_lines.append(f"**Attrs:** {num_attrs} (Default)")
     else: summary_lines.append("**Schema:** Error.")
     if workflow_state["warnings"]:
-         summary_lines.append(f"\n**⚠️ Warnings ({len(output['warnings'])}):**"); max_warn = 5; unique_warns_list = list(unique_warnings)
+         summary_lines.append(f"\n** Warnings ({len(output['warnings'])}):**"); max_warn = 5; unique_warns_list = list(unique_warnings)
          for i, warn in enumerate(unique_warns_list):
               if i < max_warn: summary_lines.append(f"- {warn[:100]}{'...' if len(warn)>100 else ''}") # Truncate long warnings
               elif i == max_warn: summary_lines.append(f"- ... and {len(unique_warns_list) - max_warn} more."); break
@@ -876,7 +876,7 @@ def refine_workflow_with_feedback(current_state, feedback_text, progress=gr.Prog
     elif isinstance(schema_result, dict) and schema_result.get("llm_placeholder_generated"): summary_lines.append(f"**Schema:** Using defaults."); num_attrs = len([a for a in schema_result.get("schema", []) if isinstance(a, dict)]); summary_lines.append(f"**Attrs:** {num_attrs} (Default)")
     else: summary_lines.append("**Schema:** Error.")
     if state["warnings"]:
-         summary_lines.append(f"\n**⚠️ Warnings ({len(state['warnings'])}):**"); max_warn = 7; displayed_warnings_iter = set(); warnings_to_show_iter = []
+         summary_lines.append(f"\n** Warnings ({len(state['warnings'])}):**"); max_warn = 7; displayed_warnings_iter = set(); warnings_to_show_iter = []
          all_warnings_ordered = [w for w in state["warnings"]] # Show all warnings
          for i, warn in enumerate(all_warnings_ordered):
               if i < max_warn: summary_lines.append(f"- {warn[:100]}{'...' if len(warn)>100 else ''}")
@@ -987,7 +987,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                 for col in expected_req_cols:
                     if col not in req_df.columns: req_df[col] = None
                 req_df = req_df[expected_req_cols]
-            except Exception as e: print(f"⚠️ Error creating DataFrame for requirements: {e}")
+            except Exception as e: print(f" Error creating DataFrame for requirements: {e}")
         updates[requirements_output_df] = gr.update(value=req_df)
 
         # Agent 2 Outputs
@@ -1003,7 +1003,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                 schema_df["is_primary_key"] = schema_df["is_primary_key"].fillna(False).astype(bool)
                 schema_df["added_by"] = schema_df["added_by"].fillna("")
                 schema_df = schema_df.fillna("") # Fill remaining NaNs for display
-            except Exception as e: print(f"⚠️ Error creating DataFrame for schema: {e}"); schema_df = None
+            except Exception as e: print(f" Error creating DataFrame for schema: {e}"); schema_df = None
         updates[schema_output_df] = gr.update(value=schema_df)
 
         # Agent 3 Outputs
@@ -1024,7 +1024,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                 for col in source_cols_order:
                     if col not in sources_df.columns: sources_df[col] = None
                 sources_df = sources_df.fillna("")[source_cols_order] # Fill NaNs and order cols
-            except Exception as e: print(f"⚠️ Error creating DataFrame for sources: {e}"); sources_df = None
+            except Exception as e: print(f" Error creating DataFrame for sources: {e}"); sources_df = None
         updates[sources_output_df] = gr.update(value=sources_df)
 
         # Agent 4 Outputs
@@ -1039,7 +1039,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                     if col not in mapping_df.columns: mapping_df[col] = None
                 if 'data_quality_checks' in mapping_df.columns: mapping_df['data_quality_checks'] = mapping_df['data_quality_checks'].apply(lambda x: ', '.join(map(str, x)) if isinstance(x, list) else x).fillna("")
                 mapping_df = mapping_df.fillna("")[mapping_cols_order] # Fill NaNs and order cols
-            except Exception as e: print(f"⚠️ Error creating DataFrame for mappings: {e}"); mapping_df = None
+            except Exception as e: print(f" Error creating DataFrame for mappings: {e}"); mapping_df = None
         updates[mapping_output_df] = gr.update(value=mapping_df)
 
         # Clear feedback input box after processing it
@@ -1059,7 +1059,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                # Keep other outputs as they are until refinement finishes
              }
         if not isinstance(current_state_dict, dict) or not current_state_dict: # Check if state is valid before proceeding
-             print("⚠️ Feedback submitted but current state is invalid or empty. Resetting.")
+             print(" Feedback submitted but current state is invalid or empty. Resetting.")
              yield { status_output: gr.update(value="Error: State lost. Please start over.", elem_classes=["error"]), summary_output: "Cannot process feedback without valid state.", workflow_state: {} } # Reset state
              return
 
