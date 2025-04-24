@@ -22,7 +22,7 @@ llm = None
 initialization_error = None
 if not API_KEY or API_KEY == "YOUR_ACTUAL_API_KEY_HERE":
     initialization_error = "API Key not found. Please set the GOOGLE_API_KEY environment variable or replace the placeholder in the script."
-    print(f"❌ CONFIG ERROR: {initialization_error}")
+    print(f" CONFIG ERROR: {initialization_error}")
 else:
     try:
         print("Configuring Google Generative AI...")
@@ -36,11 +36,11 @@ else:
             "connection test",
             generation_config=genai.types.GenerationConfig(temperature=0.1, candidate_count=1)
         )
-        print("✅ Gemini Model configured and tested successfully.")
+        print(" Gemini Model configured and tested successfully.")
     except Exception as e:
         # Catch a wider range of potential errors during init
         error_details = f"{type(e).__name__}: {e}"
-        print(f"❌ CONFIG ERROR: Failed to configure/test Gemini API: {error_details}")
+        print(f" CONFIG ERROR: Failed to configure/test Gemini API: {error_details}")
         # Provide more specific guidance if possible (e.g., authentication errors)
         if "permission" in str(e).lower() or "authenticate" in str(e).lower():
             initialization_error = f"Gemini API Authentication/Permission Error: {error_details}. Please check your API key and project settings."
@@ -182,7 +182,7 @@ def parse_json_from_llm(text, agent_name):
 def generate_with_retry(prompt, agent_name, max_retries=2, initial_delay=3):
     """Calls the LLM with retries on failure."""
     if not llm:
-        print(f"❌ LLM not initialized. Cannot run {agent_name}.")
+        print(f" LLM not initialized. Cannot run {agent_name}.")
         return {"error": f"{agent_name} cannot proceed: Gemini model not initialized.", "details": initialization_error or "Unknown init error"}
 
     retries = 0
@@ -221,7 +221,7 @@ def generate_with_retry(prompt, agent_name, max_retries=2, initial_delay=3):
                 raise ValueError(error_detail)
 
 
-            print(f"✅ [LLM Call - {agent_name}] Successful generation.")
+            print(f" [LLM Call - {agent_name}] Successful generation.")
             parsed = parse_json_from_llm(response.text, agent_name)
             # If JSON parsing failed within parse_json_from_llm, it returns an error dict
             if isinstance(parsed, dict) and "error" in parsed:
@@ -237,7 +237,7 @@ def generate_with_retry(prompt, agent_name, max_retries=2, initial_delay=3):
             print(f"⚠️ [LLM Call - {agent_name}] Failed. Type: {error_type}. Details: {error_message}.")
             if retries >= max_retries:
                  final_error_msg = f"{agent_name} LLM call failed after {max_retries} attempts"
-                 print(f"❌ [LLM Call - {agent_name}] Max retries reached. Giving up.")
+                 print(f" [LLM Call - {agent_name}] Max retries reached. Giving up.")
                  return {"error": final_error_msg, "details": error_message, "error_type": error_type}
             else:
                 print(f"   Retrying in {delay}s...")
@@ -288,9 +288,9 @@ def analyze_requirements_agent(use_case_text):
         return placeholder
 
     if isinstance(result, dict):
-        print("✅ [Agent 1] Requirements Analysis - Complete.")
+        print(" [Agent 1] Requirements Analysis - Complete.")
     else:
-         print(f"❌ [Agent 1] Requirements Analysis - Failed unexpectedly after placeholder check. Result type: {type(result)}")
+         print(f" [Agent 1] Requirements Analysis - Failed unexpectedly after placeholder check. Result type: {type(result)}")
          # Return a structured error if result is not a dict
          return {"error": "Agent 1 returned non-dict result", "details": str(result)}
     return result
@@ -300,7 +300,7 @@ def design_and_enrich_schema_agent(structured_requirements):
     print("\n🏗️ [Agent 2] Data Product Schema Design & Enrichment - Running...")
     if not isinstance(structured_requirements, dict) or "required_data_attributes" not in structured_requirements:
         error_msg = "Invalid input to Agent 2: Structured requirements missing or malformed."
-        print(f"❌ [Agent 2] Failed - {error_msg}")
+        print(f" [Agent 2] Failed - {error_msg}")
         return { # Return consistent placeholder structure on input error
             "data_product_name": "ERROR_INVALID_INPUT_SCHEMA",
             "schema": [{"attribute_name": "error_flag", "data_type": "STRING", "description": error_msg, "is_primary_key": False, "added_by": "error"}],
@@ -338,7 +338,7 @@ def design_and_enrich_schema_agent(structured_requirements):
         ]
         placeholder = { "data_product_name": "c360_default_view_LLM_Error", "schema": placeholder_schema_list,
                        "llm_placeholder_generated": True, "placeholder_reason": f"LLM Error during initial design: {str(error_detail)[:150]}"}
-        print("✅ [Agent 2] Schema Design & Enrichment - Complete (using placeholder).")
+        print(" [Agent 2] Schema Design & Enrichment - Complete (using placeholder).")
         return placeholder
 
     # --- Part 2: Rule-Based Enrichment ---
@@ -389,12 +389,12 @@ def design_and_enrich_schema_agent(structured_requirements):
                   print(f"⚠️ Found non-dict entry in schema list: {attr}. Skipping.")
         enriched_schema["schema"] = final_schema
 
-        print("✅ [Agent 2] Schema Design & Enrichment - Complete.")
+        print(" [Agent 2] Schema Design & Enrichment - Complete.")
         return enriched_schema
 
     except Exception as e:
         error_msg = f"Error during schema enrichment: {type(e).__name__}: {e}"
-        print(f"❌ [Agent 2] Failed during enrichment - {error_msg}")
+        print(f" [Agent 2] Failed during enrichment - {error_msg}")
         if isinstance(initial_schema, dict):
             initial_schema["enrichment_error"] = error_msg; initial_schema["llm_placeholder_generated"] = True; initial_schema["placeholder_reason"] = f"Enrichment failed: {str(error_msg)[:100]}"
             return initial_schema
@@ -419,7 +419,7 @@ def find_potential_sources(target_attributes):
         if not all_sources: raise ValueError("Mock catalog processing yielded no usable sources.")
     except Exception as e:
          error_msg = f"[Agent 3] Critical Error processing mock catalog: {e}"
-         print(f"❌ {error_msg}"); final_sources_output["error"] = error_msg
+         print(f" {error_msg}"); final_sources_output["error"] = error_msg
          return final_sources_output # Cannot proceed without catalog
 
     # 2. Find matches / infer for each attribute
@@ -442,7 +442,7 @@ def find_potential_sources(target_attributes):
             if best_match_source and best_score >= MIN_FUZZY_SCORE:
                 source_desc, _, _ = all_sources.get(best_match_source, ("Catalog lookup error", "", ""))
                 potential_matches[attribute].append((best_match_source, best_score, source_desc))
-                print(f"    ✅ Using catalog source: {best_match_source} (Score: {best_score})")
+                print(f"     Using catalog source: {best_match_source} (Score: {best_score})")
             else:
                 # LLM Inference Fallback
                 print(f"    🤔 No strong catalog match (Best score: {best_score} < {MIN_FUZZY_SCORE}). Inferring via LLM...")
@@ -470,13 +470,13 @@ def find_potential_sources(target_attributes):
                     potential_matches[attribute].append(("[INFERENCE_FAILED]", 0, f"LLM Error: {str(error_detail)[:100]}"))
 
         except Exception as e:
-            print(f"❌ Error processing attribute '{attribute}' in Agent 3: {e}")
+            print(f" Error processing attribute '{attribute}' in Agent 3: {e}")
             potential_matches[attribute] = [("[PROCESSING_ERROR]", 0, f"Error: {e}")]
             # Optionally set a global error flag if needed
             # final_sources_output["error"] = f"Error processing {attribute}: {e}"
 
     final_sources_output["potential_sources"] = potential_matches
-    print("✅ [Agent 3] Source Identification - Complete.")
+    print(" [Agent 3] Source Identification - Complete.")
     return final_sources_output
 
 # Agent 4: Mapping Specialist (+ Refinement)
@@ -490,7 +490,7 @@ def generate_and_refine_mappings_agent(schema_design, potential_sources):
     if not sources_ok: placeholder_reason = f"{placeholder_reason or ''} Invalid Sources Input".strip()
 
     if placeholder_reason:
-         print(f"❌ [Agent 4] Failed - {placeholder_reason}")
+         print(f" [Agent 4] Failed - {placeholder_reason}")
          placeholder_mappings = []
          if schema_ok: # Try to create placeholders based on schema
               for attr_entry in schema_design.get("schema", []):
@@ -551,7 +551,7 @@ def generate_and_refine_mappings_agent(schema_design, potential_sources):
                         "target_attribute": target_name, "best_potential_source": best_source_guess, "mapping_type": map_type,
                         "transformation_logic_summary": logic, "data_quality_checks": dq })
         placeholder = {"mappings": placeholder_mappings, "llm_placeholder_generated": True, "placeholder_reason": f"LLM Error during mapping: {str(error_detail)[:150]}"}
-        print("✅ [Agent 4] Mapping Generation & Refinement - Complete (using placeholder).")
+        print(" [Agent 4] Mapping Generation & Refinement - Complete (using placeholder).")
         return placeholder
 
     # --- Part 2: Refinement (Completeness Check) ---
@@ -610,12 +610,12 @@ def generate_and_refine_mappings_agent(schema_design, potential_sources):
         if missing_targets: print(f"    ⚠️ Added placeholder mappings for {len(missing_targets)} attributes missing from LLM output: {missing_targets}")
         if num_assumed > 0: print(f"    🚩 Note: Approx {num_assumed} mapping(s) involved assumptions or lacked clear sources.")
 
-        print("✅ [Agent 4] Mapping Generation & Refinement - Complete.")
+        print(" [Agent 4] Mapping Generation & Refinement - Complete.")
         return refined_mappings
 
     except Exception as e:
          error_msg = f"Error during mapping refinement: {type(e).__name__}: {e}"
-         print(f"❌ [Agent 4] Failed during refinement - {error_msg}")
+         print(f" [Agent 4] Failed during refinement - {error_msg}")
          if isinstance(initial_mappings, dict):
              initial_mappings["refinement_error"] = error_msg; initial_mappings["llm_placeholder_generated"] = True; initial_mappings["placeholder_reason"] = f"Refinement failed: {str(error_msg)[:100]}"
              return initial_mappings
@@ -660,12 +660,12 @@ def process_feedback_agent(current_state_summary, feedback_text):
     result = generate_with_retry(prompt, "Feedback Agent")
 
     if isinstance(result, dict) and "error" not in result and "action" in result:
-        print(f"✅ [Feedback Agent] Analysis Complete. Action: {result.get('action')}, Target: {result.get('target_details')}")
+        print(f" [Feedback Agent] Analysis Complete. Action: {result.get('action')}, Target: {result.get('target_details')}")
         result["original_feedback"] = feedback_text # Add original feedback for context
         return result
     else:
         error_detail = result.get('details', result.get('error', 'Unknown feedback analysis error'))
-        print(f"❌ [Feedback Agent] Failed. Error: {error_detail}")
+        print(f" [Feedback Agent] Failed. Error: {error_detail}")
         return { "action": "CLARIFY", "target_details": "Could not automatically parse feedback.",
                  "reason": f"Feedback analysis failed: {error_detail}", "original_feedback": feedback_text,
                  "error": result.get("error", "Feedback analysis failed") }
@@ -737,7 +737,7 @@ def run_initial_agentic_workflow(use_case_text, progress=gr.Progress()):
     end_time = time.time(); duration = end_time - start_time
     final_status = "Completed Initial Run" + (" with Warnings/Inferred Data" if workflow_state["warnings"] else "")
     workflow_state["status"] = final_status; progress(1.0, desc=final_status)
-    workflow_state["final_message"] = f"✅ Initial workflow {final_status} in {duration:.2f}s. Review & provide feedback."
+    workflow_state["final_message"] = f" Initial workflow {final_status} in {duration:.2f}s. Review & provide feedback."
     print(f"🏁 --- Initial Workflow {final_status} ({duration:.2f}s) --- 🏁")
 
     # Generate Summary
@@ -755,7 +755,7 @@ def run_initial_agentic_workflow(use_case_text, progress=gr.Progress()):
          for i, warn in enumerate(unique_warns_list):
               if i < max_warn: summary_lines.append(f"- {warn[:100]}{'...' if len(warn)>100 else ''}") # Truncate long warnings
               elif i == max_warn: summary_lines.append(f"- ... and {len(unique_warns_list) - max_warn} more."); break
-    else: summary_lines.append("\n**✅ No major warnings.**")
+    else: summary_lines.append("\n** No major warnings.**")
     summary_lines.append("\n**Next:** Review outputs. Use feedback box for revisions.")
     workflow_state["summary"] = "\n".join(summary_lines)
 
@@ -862,7 +862,7 @@ def refine_workflow_with_feedback(current_state, feedback_text, progress=gr.Prog
     end_time = time.time(); duration = end_time - start_time
     final_status = f"Refinement Iteration {state['iteration']} Complete" + (" with Warnings" if state["warnings"] else "")
     state["status"] = final_status; progress(1.0, desc=final_status)
-    if not state.get("final_message"): state["final_message"] = f"✅ Refinement iteration {state['iteration']} completed in {duration:.2f}s. Review updated results."
+    if not state.get("final_message"): state["final_message"] = f" Refinement iteration {state['iteration']} completed in {duration:.2f}s. Review updated results."
     print(f"🏁 --- Refinement Iteration {state['iteration']} {final_status} ({duration:.2f}s) --- 🏁")
 
     # Regenerate summary based on the *new* state
@@ -881,7 +881,7 @@ def refine_workflow_with_feedback(current_state, feedback_text, progress=gr.Prog
          for i, warn in enumerate(all_warnings_ordered):
               if i < max_warn: summary_lines.append(f"- {warn[:100]}{'...' if len(warn)>100 else ''}")
               elif i == max_warn: summary_lines.append(f"- ... and {len(all_warnings_ordered) - max_warn} more unique warnings."); break
-    else: summary_lines.append("\n**✅ No warnings detected.**")
+    else: summary_lines.append("\n** No warnings detected.**")
     summary_lines.append("\n**Next:** Review outputs. Provide further feedback if needed.")
     state["summary"] = "\n".join(summary_lines)
 
@@ -1082,7 +1082,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
 if __name__ == "__main__":
     print("--------------------------------------------------")
     if initialization_error:
-         print(f"❌ APPLICATION STARTUP FAILED: {initialization_error}")
+         print(f" APPLICATION STARTUP FAILED: {initialization_error}")
          print("   Please fix the API key configuration and restart.")
     else:
          print("Launching Gradio Interface...")
