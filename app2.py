@@ -16,7 +16,7 @@ print("--------------------------------------------------")
 # --- Configuration & Initialization ---
 # Recommended: Set GOOGLE_API_KEY environment variable.
 # Fallback: Replace "YOUR_ACTUAL_API_KEY_HERE" directly (less secure).
-API_KEY = os.getenv("GOOGLE_API_KEY", "YOUR_ACTUAL_API_KEY_HERE") # <<< REPLACE FALLBACK KEY
+API_KEY ="AIzaSyBvLjAbdWz6v6_ii98B_j98IffX4TGrexM" # <<< REPLACE FALLBACK KEY
 
 llm = None
 initialization_error = None
@@ -941,7 +941,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
                  mapping_output_df = gr.DataFrame(label="Source-to-Target Mappings", headers=["target_attribute", "best_potential_source", "mapping_type", "transformation_logic_summary", "data_quality_checks"], interactive=False, wrap=True)
                  mapping_output_json = gr.JSON(label="Raw Mappings JSON")
 
-    with gr.Box(elem_id="feedback_box"):
+    with gr.Column(elem_id="feedback_box"):
          gr.Markdown("**🔁 Provide Feedback for Refinement:** (Submit after initial design is generated)")
          feedback_input = gr.Textbox(lines=3, label="Enter feedback here:", placeholder="e.g., 'Add account opening date to the schema.', 'Source for segment should be crm.segment', 'Map total balance by summing across all accounts.'")
          feedback_button = gr.Button("SUBMIT FEEDBACK & REFINE", elem_id="feedback_button")
@@ -1048,13 +1048,13 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue=gr.themes.colors.blue, secondary
         return updates
 
     # --- Gradio Event Handlers ---
-    def handle_initial_submit(use_case_text, progress=gr.Progress(track_bandits=True)):
+    def handle_initial_submit(use_case_text, progress=gr.Progress()):
         yield { status_output: gr.update(value="Running Initial Workflow...", elem_classes=["running"]), summary_output: "*Processing...*", requirements_output_df: None, requirements_output_json: None, schema_output_df: None, schema_output_json: None, sources_output_df: None, sources_output_json: None, mapping_output_df: None, mapping_output_json: None, feedback_input: "" }
         initial_state = run_initial_agentic_workflow(use_case_text, progress)
         final_ui_updates = update_ui_from_state(initial_state)
         yield {**final_ui_updates, workflow_state: initial_state}
 
-    def handle_feedback_submit(current_state_dict, feedback_text, progress=gr.Progress(track_bandits=True)):
+    def handle_feedback_submit(current_state_dict, feedback_text, progress=gr.Progress()):
         yield { status_output: gr.update(value="Processing Feedback and Refining...", elem_classes=["running"]), feedback_input: gr.update(value="") # Clear feedback box immediately
                # Keep other outputs as they are until refinement finishes
              }
